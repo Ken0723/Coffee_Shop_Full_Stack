@@ -29,6 +29,7 @@ db_drop_and_create_all()
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks')
+@requires_auth('get:drinks')
 def get_drinks():
     try:
         drinks = Drink.query.all()
@@ -198,7 +199,7 @@ def not_found(error):
 '''
 @app.errorhandler(401)
 def unauthorized(error):
-    return jsonify({
+    return AuthError({
         "success": False,
         "error": 401,
         "message": "Unauthorized"
@@ -206,7 +207,7 @@ def unauthorized(error):
 
 @app.errorhandler(403)
 def forbidden(error):
-    return jsonify({
+    return AuthError({
         "success": False,
         "error": 403,
         "message": "Forbidden"
