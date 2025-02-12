@@ -29,7 +29,6 @@ db_drop_and_create_all()
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks')
-@requires_auth('get:drinks')
 def get_drinks():
     try:
         drinks = Drink.query.all()
@@ -43,7 +42,8 @@ def get_drinks():
             'success': True,
             'drinks': formattedDrinks
         })
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         abort(500)
 
 
@@ -56,9 +56,13 @@ def get_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks-detail')
-def get_drinks_details():
+@requires_auth('get:drinks-detail')
+def get_drinks_details(payload):
     try:
         drinks = Drink.query.all()
+
+        if not drinks:
+            abort(404)
 
         formattedDrinks = [drink.long() for drink in drinks]
     
@@ -66,7 +70,8 @@ def get_drinks_details():
             'success': True,
             'drinks': formattedDrinks
         })
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         abort(500)
 
 '''
@@ -79,23 +84,26 @@ def get_drinks_details():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks', methods=['POST'])
-def post_drinks():
+@requires_auth('post:drinks')
+def post_drinks(payload):
     try:
         body = request.get_json()
         if not body:
             abort(400)
 
-
-        # to do
-        new_drink = Drink()
+        new_drink = Drink(
+            title = body.get('title'),
+            recipe = json.dumps(body.get('recipe')),
+        )
 
         new_drink.insert()
 
         return jsonify({
             'success': True,
-            'drinks': new_drink
+            'drinks': [new_drink.long()]
         })
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         abort(500)
 
 '''
@@ -110,13 +118,32 @@ def post_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
-def patch_drink():
+@requires_auth('patch:drinks')
+def patch_drink(payload, drink_id):
     try:
+        body = request.get_json()
+        if not body:
+            abort(400)
+        
+        drink = Drink.query.get(drink_id)
+        if not drink:
+            abort(404)
+        
+        if 'title' in body:
+            drink.title = body['title']
+            
+        if 'recipe' in body:
+            recipe = body.get('recipe')
+            drink.recipe = json.dumps(recipe)
+
+        drink.update()
+
         return jsonify({
             'success': True,
-            'drinks': []
+            'drinks': [drink.long()]
         })
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         abort(500)
 
 '''
@@ -130,7 +157,8 @@ def patch_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
-def delete_drink(drink_id):
+@requires_auth('delete:drinks')
+def delete_drink(payload, drink_id):
     try:
         drink = Drink.query.get(drink_id)
         if not drink:
@@ -139,9 +167,10 @@ def delete_drink(drink_id):
         drink.delete()
         return jsonify({
             'success': True,
-            'delete': '123'
+            'delete': drink.id
         })
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         abort(500)
 
 # Error Handling

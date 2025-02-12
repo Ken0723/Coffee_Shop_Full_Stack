@@ -2,40 +2,99 @@
   <ion-toolbar>
     <ion-title *ngIf="isNew">New Drink Creator</ion-title>
     <ion-title *ngIf="!isNew">Drink Editor</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()" class="close-button"> X </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="drink">
-    <app-drink-graphic [drink]="drink"></app-drink-graphic>
+<ion-content *ngIf="drink" class="content-container">
+  <ion-grid class="h-100">
+    <ion-row class="flex-grow-1">
+      <ion-col size="12" size-md="6" class="ion-padding">
+        <div class="graphic-container">
+          <app-drink-graphic [drink]="drink"></app-drink-graphic>
+        </div>
+      </ion-col>
+      <ion-col size="12" size-md="6" class="ion-padding">
+        <form (ngSubmit)="logForm()">
+          <ion-item>
+            <ion-label>Drink Title</ion-label>
+            <ion-input
+              type="text"
+              [(ngModel)]="drink.title"
+              name="title"
+            ></ion-input>
+          </ion-item>
 
-    <form (ngSubmit)="logForm()">
-      <ion-item>
-        <ion-label>Drink Title</ion-label>
-        <ion-input type="text" [(ngModel)]="drink.title" name="title"></ion-input>
-      </ion-item>
+          <ion-item
+            *ngFor="
+              let ingredient of drink.recipe;
+              let i = index;
+              trackBy: customTrackBy
+            "
+          >
+            <ion-label>Ingredient Name</ion-label>
+            <ion-input
+              [(ngModel)]="drink.recipe[i].name"
+              [name]="'Ingredient Title' + i"
+            ></ion-input>
 
-      <ion-item *ngFor="let ingredient of drink.recipe; let i = index;  trackBy: customTrackBy">
-        <ion-label>Ingredient Name</ion-label>
-        <ion-input [(ngModel)]="drink.recipe[i].name" [name]="'Ingredient Title'+i"></ion-input>
+            <ion-label>Number of Parts</ion-label>
+            <ion-input
+              type="number"
+              [(ngModel)]="drink.recipe[i].parts"
+              [name]="'Ingredient Parts' + i"
+            ></ion-input>
 
-        <ion-label>Number of Parts</ion-label>
-        <ion-input type="number" [(ngModel)]="drink.recipe[i].parts" [name]="'Ingredient Parts'+i"></ion-input>
+            <ion-label>Color</ion-label>
+            <ion-input
+              type="text"
+              [(ngModel)]="drink.recipe[i].color"
+              [name]="'Ingredient Color' + i"
+            ></ion-input>
 
-        <ion-label>Color</ion-label>
-        <ion-input type="text" [(ngModel)]="drink.recipe[i].color" [name]="'Ingredient Color'+i"></ion-input>
-
-        <ion-button (click)="removeIngredient(i)" [disabled]="i==0 && drink.recipe.length==1">Remove</ion-button><br />
-        <ion-button (click)="addIngredient(i)" [disabled]="drink.recipe.length==5">ADD</ion-button><br />
-
-      </ion-item>
-
-      <ion-button 
-        [disabled]="!auth.can('delete:drinks')"
-        (click)="deleteClicked()">Delete</ion-button><br />
-      <ion-button (click)="closeModal()">Cancel</ion-button>
-      <ion-button 
-        [disabled]="!auth.can('patch:drinks') || !auth.can('post:drinks')"
-        (click)="saveClicked()">Save</ion-button>
-
-    </form>
+            <ion-button
+              color="danger"
+              (click)="removeIngredient(i)"
+              [disabled]="i == 0 && drink.recipe.length == 1 && !auth.can('patch:drinks')"
+              >Remove</ion-button
+            ><br />
+            <ion-button
+              color="primary"
+              (click)="addIngredient(i)"
+              [disabled]="drink.recipe.length == 5 && !auth.can('patch:drinks')"
+              >ADD</ion-button
+            ><br />
+          </ion-item>
+        </form>
+      </ion-col>
+    </ion-row>
+    <ion-row class="button-row">
+      <ion-col size="12" class="ion-padding">
+        <div class="ion-padding ion-text-center">
+          <div class="ion-justify-content-between ion-align-items-center">
+            <div>
+              <ion-button
+                color="danger"
+                [disabled]="!auth.can('delete:drinks')"
+                (click)="deleteClicked()"
+              >
+                Delete
+              </ion-button>
+              <ion-button
+                color="primary"
+                [disabled]="
+                  !auth.can('patch:drinks') || !auth.can('post:drinks')
+                "
+                (click)="saveClicked()"
+              >
+                Save
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
