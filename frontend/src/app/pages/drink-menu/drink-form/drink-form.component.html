@@ -19,7 +19,7 @@
       <ion-col size="12" size-md="6" class="ion-padding">
         <form (ngSubmit)="logForm()">
           <ion-item>
-            <ion-label>Drink Title</ion-label>
+            <ion-label>Drink Title:</ion-label>
             <ion-input
               type="text"
               [(ngModel)]="drink.title"
@@ -57,15 +57,17 @@
             <ion-button
               color="danger"
               (click)="removeIngredient(i)"
-              [disabled]="i == 0 && drink.recipe.length == 1 && !auth.can('patch:drinks')"
-              >Remove</ion-button
-            ><br />
+              [disabled]="(i == 0 && drink.recipe.length == 1) || !auth.can('patch:drinks')"
+              >Remove
+            </ion-button>
+            <br />
             <ion-button
               color="primary"
               (click)="addIngredient(i)"
-              [disabled]="drink.recipe.length == 5 && !auth.can('patch:drinks')"
-              >ADD</ion-button
-            ><br />
+              [disabled]="drink.recipe.length == 5 || !auth.can('patch:drinks')"
+              >ADD
+            </ion-button>
+            <br />
           </ion-item>
         </form>
       </ion-col>
