@@ -11,12 +11,12 @@
 <ion-content *ngIf="drink" class="content-container">
   <ion-grid class="h-100">
     <ion-row class="flex-grow-1">
-      <ion-col size="12" size-md="6" class="ion-padding">
+      <ion-col size="12" size-md="4" class="ion-padding">
         <div class="graphic-container">
           <app-drink-graphic [drink]="drink"></app-drink-graphic>
         </div>
       </ion-col>
-      <ion-col size="12" size-md="6" class="ion-padding">
+      <ion-col size="12" size-md="8" class="ion-padding">
         <form (ngSubmit)="logForm()">
           <ion-item>
             <ion-label>Drink Title:</ion-label>
@@ -26,49 +26,68 @@
               name="title"
             ></ion-input>
           </ion-item>
-
-          <ion-item
-            *ngFor="
-              let ingredient of drink.recipe;
-              let i = index;
-              trackBy: customTrackBy
-            "
-          >
-            <ion-label>Ingredient Name</ion-label>
-            <ion-input
-              [(ngModel)]="drink.recipe[i].name"
-              [name]="'Ingredient Title' + i"
-            ></ion-input>
-
-            <ion-label>Number of Parts</ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="drink.recipe[i].parts"
-              [name]="'Ingredient Parts' + i"
-            ></ion-input>
-
-            <ion-label>Color</ion-label>
-            <ion-input
-              type="text"
-              [(ngModel)]="drink.recipe[i].color"
-              [name]="'Ingredient Color' + i"
-            ></ion-input>
-
-            <ion-button
-              color="danger"
-              (click)="removeIngredient(i)"
-              [disabled]="(i == 0 && drink.recipe.length == 1) || !auth.can('patch:drinks')"
-              >Remove
-            </ion-button>
-            <br />
-            <ion-button
-              color="primary"
-              (click)="addIngredient(i)"
-              [disabled]="drink.recipe.length == 5 || !auth.can('patch:drinks')"
-              >ADD
-            </ion-button>
-            <br />
-          </ion-item>
+          <table>
+            <thead>
+              <tr>
+                <th>Ingredient Name</th>
+                <th>Number of Parts</th>
+                <th>Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let ingredient of drink.recipe;
+                  let i = index;
+                  trackBy: customTrackBy
+                "
+              >
+                <td>
+                  <ion-input
+                    [(ngModel)]="drink.recipe[i].name"
+                    [name]="'Ingredient Title' + i"
+                  ></ion-input>
+                </td>
+                <td>
+                  <ion-input
+                    type="number"
+                    [(ngModel)]="drink.recipe[i].parts"
+                    [name]="'Ingredient Parts' + i"
+                  ></ion-input>
+                </td>
+                <td>
+                  <ion-input
+                    type="text"
+                    [(ngModel)]="drink.recipe[i].color"
+                    [name]="'Ingredient Color' + i"
+                  ></ion-input>
+                </td>
+                <td>
+                  <ion-button
+                    size="small"
+                    color="danger"
+                    (click)="removeIngredient(i)"
+                    [disabled]="
+                      (i == 0 && drink.recipe.length == 1) ||
+                      !auth.can('patch:drinks')
+                    "
+                  >
+                    Remove
+                  </ion-button>
+                  <ion-button
+                    size="small"
+                    color="primary"
+                    (click)="addIngredient(i)"
+                    [disabled]="
+                      drink.recipe.length == 5 || !auth.can('patch:drinks')
+                    "
+                  >
+                    ADD
+                  </ion-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </form>
       </ion-col>
     </ion-row>
